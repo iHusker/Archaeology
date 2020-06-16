@@ -1,0 +1,10 @@
+name: Archaeology
+main: com.ihusker.archaeology.Archaeology
+version: ALPHA-1.0
+api-version: 1.15
+author: iHusker
+softdepend: [Vault, Citizens]
+
+commands:
+  redeem:
+    description: Redeems an artifact.
