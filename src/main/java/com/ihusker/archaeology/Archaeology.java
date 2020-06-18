@@ -17,8 +17,6 @@ import java.util.Arrays;
 
 public class Archaeology extends JavaPlugin {
 
-    private static Archaeology instance;
-
     private Economy economy = null;
     private final NamespacedKey namespacedKey = new NamespacedKey(this, "Artifact");
 
@@ -27,7 +25,6 @@ public class Archaeology extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        instance = this;
 
         if(registerDependencies()) {
             saveDefaultConfig();
@@ -35,10 +32,7 @@ public class Archaeology extends JavaPlugin {
             artifactManager.deserialize(this);
             dataManager.deserialize(this);
 
-            registerCommands(
-                    new ArchaeologyCommand(this),
-                    new RedeemCommand(this)
-            );
+            registerCommands(new ArchaeologyCommand(this));
 
             registerListener(
                     new BlockBreakListener(this),
@@ -75,10 +69,6 @@ public class Archaeology extends JavaPlugin {
         if (rsp == null) return false;
         economy = rsp.getProvider();
         return true;
-    }
-
-    public static Archaeology getInstance() {
-        return instance;
     }
 
     public NamespacedKey getKey() {
