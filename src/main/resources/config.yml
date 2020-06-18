@@ -12,54 +12,8 @@ blocks:
   - COARSE_DIRT
   - GRAVEL
 
+# WORLDS
+# A list of worlds where you can find fossils/artifacts.
 
-# RARITIES
-# Add different rarities for each artifact/fossil
-
-# Make sure these rarities are applied correctly to the artifacts.
-# The higher the chance the more likely it will drop.
-# {name}:{chance}:{color}
-
-rarities:
-  - COMMON:95:YELLOW
-  - UNCOMMON:75:GREEN
-  - RARE:50:BLUE
-  - EPIC:20:DARK_PURPLE
-  - LEGENDARY:5:GOLD
-
-
-# ARTIFACTS
-# You can add as many artifacts are you desire:
-
-# {name}: Make sure this is in caps and underscore to separate words.
-#   rarity: {rarity} Set your rarity to the rarities list provided above.
-#   material: {material} Set this to a 1.15 material
-#   description: {description} Say something nice about the artifact
-#   price: {price} How much you can redeem it for.
-
-artifacts:
-  ARROW_HEAD:
-    rarity: COMMON
-    material: FLINT
-    description: "Once used for hunting."
-    price: 5000
-  BONE_FLUTE:
-    rarity: UNCOMMON
-    material: BAMBOO
-    description: "A rare wind instrument."
-    price: 12000
-  PREHISTORIC_SCAPULA:
-    rarity: RARE
-    material: QUARTZ
-    description: "A shoulder blade?"
-    price: 40000
-  DINOSAUR_EGG:
-    rarity: EPIC
-    material: TURTLE_EGG
-    description: "I hope it doesn't hatch."
-    price: 50000
-  GOLDEN_RELIC:
-    rarity: LEGENDARY
-    material: GOLD_INGOT
-    description: "Beautifully written hieroglyphs."
-    price: 100000
+worlds:
+  - world

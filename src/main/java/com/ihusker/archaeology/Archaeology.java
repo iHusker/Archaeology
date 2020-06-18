@@ -1,13 +1,13 @@
 package com.ihusker.archaeology;
 
-import com.ihusker.archaeology.commands.RedeemCommand;
+import com.ihusker.archaeology.commands.ArchaeologyCommand;
 import com.ihusker.archaeology.listeners.BlockBreakListener;
 import com.ihusker.archaeology.listeners.NPCListener;
+import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.managers.DataManager;
 import com.ihusker.archaeology.utilities.command.Command;
-import com.ihusker.archaeology.utilities.general.Message;
-import com.ihusker.archaeology.utilities.storage.YamlStorage;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -17,24 +17,42 @@ import java.util.Arrays;
 
 public class Archaeology extends JavaPlugin {
 
+    private static Archaeology instance;
+
     private Economy economy = null;
+    private final NamespacedKey namespacedKey = new NamespacedKey(this, "Artifact");
+
+    private final ArtifactManager artifactManager = new ArtifactManager();
     private final DataManager dataManager = new DataManager();
 
     @Override
     public void onEnable() {
+        instance = this;
+
         if(registerDependencies()) {
             saveDefaultConfig();
+
+            artifactManager.deserialize(this);
             dataManager.deserialize(this);
 
-            registerCommands(new RedeemCommand(this));
+            registerCommands(
+                    new ArchaeologyCommand(this),
+                    new RedeemCommand(this)
+            );
 
-            registerListener(new BlockBreakListener(this), new NPCListener(this));
-            registerMessages(new YamlStorage("messages.yml").createNewFile(this));
-
+            registerListener(
+                    new BlockBreakListener(this),
+                    new NPCListener(this)
+            );
         } else {
-            getLogger().warning("You need to install vault and citizens for plugin to work...");
+            getLogger().warning("You need to install both vault and citizens for plugin to work...");
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    @Override
+    public void onDisable() {
+        artifactManager.serialize(this);
     }
 
     private void registerCommands(Command... commands) {
@@ -42,28 +60,10 @@ public class Archaeology extends JavaPlugin {
             PluginCommand pluginCommand = getCommand(command.name());
             if(pluginCommand != null) pluginCommand.setExecutor(command.commandExecutor());
         });
-        getLogger().warning("Registered Commands.");
     }
 
     private void registerListener(Listener... listeners) {
         Arrays.asList(listeners).forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
-        getLogger().warning("Registered Listeners.");
-    }
-
-    public void registerMessages(YamlStorage yamlStorage) {
-        Message.setConfiguration(yamlStorage.getConfig());
-
-        for (Message value : Message.values()) {
-            if (value.getDefaultList() != null) {
-                yamlStorage.getConfig().addDefault(value.getPath(), value.getDefaultList());
-            } else {
-                yamlStorage.getConfig().addDefault(value.getPath(), value.getDefault());
-            }
-        }
-
-        yamlStorage.getConfig().options().copyDefaults(true);
-        yamlStorage.saveConfig();
-        getLogger().warning("Registered Messages.");
     }
 
     private boolean registerDependencies() {
@@ -74,9 +74,19 @@ public class Archaeology extends JavaPlugin {
         RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) return false;
         economy = rsp.getProvider();
-
-        getLogger().warning("Registered Dependencies.");
         return true;
+    }
+
+    public static Archaeology getInstance() {
+        return instance;
+    }
+
+    public NamespacedKey getKey() {
+        return namespacedKey;
+    }
+
+    public ArtifactManager getArtifactManager() {
+        return artifactManager;
     }
 
     public DataManager getDataManager() {

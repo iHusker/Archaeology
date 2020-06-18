@@ -6,5 +6,7 @@ author: iHusker
 softdepend: [Vault, Citizens]
 
 commands:
+  archaeology:
+    description: The main command.
   redeem:
     description: Redeems an artifact.

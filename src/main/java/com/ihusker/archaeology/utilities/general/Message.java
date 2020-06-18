@@ -1,61 +1,55 @@
 package com.ihusker.archaeology.utilities.general;
 
+
+import com.ihusker.archaeology.utilities.storage.YamlStorage;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.stream.Collectors;
 
-public enum Message {
+public class Message {
 
-    PERMISSIONS("permissions","&c&lError: &7You do not seem to have permissions for that command."),
-    PREFIX("prefix", "&e&lArchaeology: &7"),
-    FOUND("found", "You have found a &f{name} &7artifact"),
-    REDEEM("redeem","You have received &a${amount} &7from the artifact"),
-    ARTIFACT_NAME("artifact.name", "{color}&l{name} &7[Artifact]"),
-    ARTIFACT_LORE("artifact.lore", Arrays.asList(
+    public static Object PERMISSIONS = "&7You do not seem to have permissions for that command.";
+    public static Object PREFIX = "&e&lArchaeology: &7";
+    public static Object FOUND = "You have found a &f{name} &7artifact";
+    public static Object REDEEM = "You have received &a${amount} &7from the artifact";
+    public static Object ARTIFACT_NAME = "{color}&l{name} &7[Artifact]";
+    public static Object ARTIFACT_LORE = new String[] {
             "&7{description}",
-            "&7Rarity: {color}{name}",
+            "&7Chance: &a{chance}%",
             "",
             "&f&oRedeem at the Archaeologist."
-    ));
+    };
 
-
-    private String path, def;
-    private List<String> list;
-    private static FileConfiguration config;
-
-    Message(String path, String def) {
-        this.path = path;
-        this.def = def;
+    public static void Setup(YamlStorage yamlStorage) {
+        for(Field field : Message.class.getDeclaredFields()) {
+            field.setAccessible(true);
+            String name = field.getName().toLowerCase().replace("_", "-");
+            try {
+                yamlStorage.getConfig().addDefault(name, field.get(null));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            field.setAccessible(false);
+        }
+        yamlStorage.getConfig().options().copyDefaults(true);
+        yamlStorage.saveConfig();
     }
 
-    Message(String path, List<String> list) {
-        this.path = path;
-        this.list = list;
-    }
+    public static void Deserialize(FileConfiguration configuration) {
+        for (Field field : Message.class.getDeclaredFields()) {
+            field.setAccessible(true);
 
-    public String getDefault() {
-        return this.def;
-    }
+            String name = field.getName().toLowerCase().replace("_", "-");
+            try {
+                if (field.get(null) instanceof Array) field.set(null, configuration.getStringList(name).stream().map(Chat::color).collect(Collectors.toList()));
+                if (field.get(null) instanceof String) field.set(null, Chat.color(configuration.getString(name)));
 
-    public List<String> getDefaultList() {
-        return list;
-    }
-
-    public static void setConfiguration(FileConfiguration configuration) {
-        config = configuration;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public String toString() {
-        return Chat.color(config.getString(this.path, this.def));
-    }
-
-    public List<String> toList() {
-        return config.getStringList(this.path);
+                field.setAccessible(false);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

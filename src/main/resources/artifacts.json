@@ -1,0 +1,42 @@
+[
+  {
+    "name": "ARROW_HEAD",
+    "description": "Once used for hunting.",
+    "color": "YELLOW",
+    "chance": "90",
+    "material": "FLINT",
+    "price": 5000.0
+  },
+  {
+    "name": "BONE_FLUTE",
+    "description": "A rare wind instrument.",
+    "color": "GREEN",
+    "chance": "70",
+    "material": "BAMBOO",
+    "price": 12000
+  },
+  {
+    "name": "PREHISTORIC_SCAPULA",
+    "description": "A shoulder blade?",
+    "color": "BLUE",
+    "chance": "40",
+    "material": "QUARTZ",
+    "price": 40000
+  },
+  {
+    "name": "DINOSAUR_EGG",
+    "description": "I hope it doesn't hatch.",
+    "color": "AQUA",
+    "chance": "20",
+    "material": "TURTLE_EGG",
+    "price": 50000
+  },
+  {
+    "name": "GOLDEN_RELIC",
+    "description": "Beautifully written hieroglyphs.",
+    "color": "GOLD",
+    "chance": "5",
+    "material": "GOLD_INGOT",
+    "price": 100000
+  }
+]

@@ -1,20 +1,24 @@
 package com.ihusker.archaeology.data;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public class Artifact {
 
-    private final String name, description;
-    private final Rarity rarity;
+    private final String name;
+    private final String description;
     private final Material material;
+    private final ChatColor color;
     private final double price;
+    private final int chance;
 
-    public Artifact(String name, String description, Rarity rarity, Material material, int price) {
+    public Artifact(String name, String description, Material material, ChatColor color, double price, int chance) {
         this.name = name;
         this.description = description;
-        this.rarity = rarity;
         this.material = material;
+        this.color = color;
         this.price = price;
+        this.chance = chance;
     }
 
     public String getName() {
@@ -29,23 +33,16 @@ public class Artifact {
         return material;
     }
 
+    public ChatColor getColor() {
+        return color;
+    }
+
     public double getPrice() {
         return price;
     }
 
-    public Rarity getRarity() {
-        return rarity;
-    }
-
-    @Override
-    public String toString() {
-        return "Artifact{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", rarity=" + rarity +
-                ", material=" + material +
-                ", price=" + price +
-                '}';
+    public int getChance() {
+        return chance;
     }
 }
 

@@ -2,6 +2,7 @@ package com.ihusker.archaeology.listeners;
 
 import com.ihusker.archaeology.Archaeology;
 import com.ihusker.archaeology.data.Artifact;
+import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.utilities.general.Message;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.apache.commons.lang.WordUtils;
@@ -30,41 +31,33 @@ public class NPCListener implements Listener {
         Entity entity = event.getRightClicked();
 
         if (!event.getHand().equals(EquipmentSlot.HAND)) return;
-        if (!(entity instanceof Player)) return;
         if (!entity.hasMetadata("NPC")) return;
         if (entity.getCustomName() == null) return;
 
+        String name = ChatColor.stripColor(WordUtils.capitalizeFully(entity.getCustomName().toLowerCase()));
+        if (!name.equalsIgnoreCase("archaeologist")) return;
         Player player = event.getPlayer();
 
-        String name = ChatColor.stripColor(WordUtils.capitalizeFully(entity.getCustomName().toLowerCase()));
-        if (name.equalsIgnoreCase("Archaeologist")) {
-            ItemStack itemStack = player.getInventory().getItemInMainHand();
-            if (itemStack.getType() == Material.AIR) return;
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        if (itemStack.getType() == Material.AIR) return;
 
-            for (Artifact artifact : archaeology.getDataManager().getArtifacts()) {
-                if (artifact.getMaterial() == itemStack.getType()) {
-                    Bukkit.getLogger().info("Working");
+        for (Artifact artifact : archaeology.getArtifactManager().getArtifacts()) {
+            if (artifact.getMaterial() == itemStack.getType()) {
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                if (itemMeta != null) {
+                    PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    if (itemMeta != null) {
-                        Bukkit.getLogger().info("Working 2");
-                        NamespacedKey namespacedKey = new NamespacedKey(archaeology, "Artifact");
-                        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+                    if (container.has(archaeology.getKey(), PersistentDataType.DOUBLE)) {
 
-                        if (container.has(namespacedKey, PersistentDataType.DOUBLE)) {
-                            Bukkit.getLogger().info("Working 2");
+                        Double aDouble = container.get(archaeology.getKey(), PersistentDataType.DOUBLE);
 
-                            Double aDouble = container.get(namespacedKey, PersistentDataType.DOUBLE);
-
-                            if (aDouble != null) {
-                                EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, artifact.getPrice());
-                                if (economyResponse.transactionSuccess())
-                                    player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString().replace("{amount}", String.valueOf(aDouble)));
-                                ItemStack handItem = player.getInventory().getItemInMainHand();
-                                handItem.setAmount(handItem.getAmount() - 1);
-                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-                                break;
-                            }
+                        if (aDouble != null) {
+                            EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, artifact.getPrice());
+                            if (economyResponse.transactionSuccess()) player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString().replace("{amount}", String.valueOf(aDouble)));
+                            ItemStack handItem = player.getInventory().getItemInMainHand();
+                            handItem.setAmount(handItem.getAmount() - 1);
+                            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+                            break;
                         }
                     }
                 }
