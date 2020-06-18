@@ -37,7 +37,7 @@ public class JsonStorage {
         Path path = Paths.get(plugin.getDataFolder() + "/" + fileName);
         boolean resources = false;
         try {
-            if(!Files.exists(path)) {
+            if (!Files.exists(path)) {
                 Files.createDirectories(path.getParent());
                 Files.createFile(path);
                 resources = true;
@@ -45,22 +45,22 @@ public class JsonStorage {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        BufferedReader bufferedReader = null;
-        if(resources) {
+
+        BufferedReader bufferedReader;
+
+        if (resources) {
             InputStream inputStream = plugin.getResource("artifacts.json");
-            if(inputStream == null) return null;
+            if (inputStream == null) return null;
             bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        } else {
-            try {
-                bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            JsonStorage.write(plugin, fileName, GSON.fromJson(bufferedReader, type));
         }
 
-        if(bufferedReader == null) return null;
-        return GSON.fromJson(bufferedReader,type);
+        try {
+            bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
 
+            return GSON.fromJson(bufferedReader, type);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
