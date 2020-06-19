@@ -3,7 +3,7 @@
     "name": "ARROW_HEAD",
     "description": "Once used for hunting.",
     "color": "YELLOW",
-    "chance": "90",
+    "chance": 90.5,
     "commands": [
       "give {player} STONE 1",
       "heal {player}"

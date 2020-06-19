@@ -31,6 +31,7 @@ public class DataHandler {
             try {
                 if (field.get(null) instanceof String[]) field.set(null, configuration.getStringList(name).stream().map(Chat::color).toArray(String[]::new));
                 if (field.get(null) instanceof String) field.set(null, Chat.color(configuration.getString(name)));
+                if (field.get(null) instanceof Boolean) field.set(null, configuration.getBoolean(name));
 
                 field.setAccessible(false);
             } catch (IllegalAccessException e) {

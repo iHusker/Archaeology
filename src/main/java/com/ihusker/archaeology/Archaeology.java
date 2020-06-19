@@ -3,6 +3,7 @@ package com.ihusker.archaeology;
 import com.ihusker.archaeology.commands.ArchaeologyCommand;
 import com.ihusker.archaeology.listeners.BlockBreakListener;
 import com.ihusker.archaeology.listeners.NPCListener;
+import com.ihusker.archaeology.listeners.PlayerListener;
 import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.managers.DataManager;
 import com.ihusker.archaeology.utilities.command.Command;
@@ -33,7 +34,8 @@ public class Archaeology extends JavaPlugin {
 
             registerListener(
                     new BlockBreakListener(artifactManager),
-                    new NPCListener(artifactManager)
+                    new NPCListener(artifactManager),
+                    new PlayerListener(this)
             );
         } else {
             getLogger().warning("You need to install both vault and citizens for plugin to work...");

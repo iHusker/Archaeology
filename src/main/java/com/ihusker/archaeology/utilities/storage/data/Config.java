@@ -26,4 +26,5 @@ public class Config {
     };
 
     public static Object WORLDS = new String[] { "world" };
+    public static boolean SILK_TOUCH = false;
 }

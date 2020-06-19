@@ -1,5 +1,6 @@
 package com.ihusker.archaeology.managers;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.google.gson.reflect.TypeToken;
 import com.ihusker.archaeology.Archaeology;
 import com.ihusker.archaeology.data.Artifact;
@@ -17,6 +18,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ArtifactManager {
@@ -86,6 +88,7 @@ public class ArtifactManager {
 
         String displayName = Message.ARTIFACT_NAME.toString()
                 .replace("{color}", "&" + artifact.getColor().getChar())
+                .replace("{type}", (artifact.getType() != null) ? artifact.getType(): "Artifact")
                 .replace("{name}", artifact.toString());
 
         //Copy constructor is put in place so that it doesn't override the static message variable
@@ -93,6 +96,7 @@ public class ArtifactManager {
         String[] lore = new String[strings.size()];
 
         for(int i = 0; i < strings.size(); i++) {
+            strings.set(i , strings.get(i).replace("{type}", (artifact.getType() != null) ? artifact.getType(): "Artifact"));
             strings.set(i , strings.get(i).replace("{description}", artifact.getDescription()));
             strings.set(i , strings.get(i).replace("{chance}", String.valueOf(artifact.getChance())));
             strings.set(i , strings.get(i).replace("{color}", "&" + artifact.getColor().getChar()));
@@ -109,18 +113,17 @@ public class ArtifactManager {
     }
 
     public Artifact getWeightedArtifact() {
-        int totalWeight = 0;
+        Map<Integer, Double> weights = new HashMap<>();
         List<Artifact> artifacts = new ArrayList<>(this.artifacts);
 
-        for(Artifact artifact : artifacts) totalWeight += artifact.getChance();
+        for(int i = 0; i < artifacts.size(); i++) weights.put(i, artifacts.get(i).getChance());
 
-        int index = new Random().nextInt(totalWeight);
-        int sum = 0;
-        int i = 0;
-
-        while (sum < index) sum += artifacts.get(i++).getChance();
-
-        return artifacts.get(Math.max(0, i - 1));
+        double chance = Math.random() * weights.values().stream().reduce(0D, Double::sum);
+        AtomicDouble needle = new AtomicDouble();
+        return weights.entrySet().stream()
+                .filter(entry-> needle.addAndGet(entry.getValue()) >= chance)
+                .findFirst().map(Map.Entry::getKey).map(artifacts::get)
+                .orElse(null);
     }
 
     public Artifact getArtifact(String name) {

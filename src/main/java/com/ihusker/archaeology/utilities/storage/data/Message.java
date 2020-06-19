@@ -11,8 +11,8 @@ public class Message {
     public static Object OFFLINE = "The player &f{player} &7does not seem to be online.";
     public static Object RELOAD = "You have reloaded the configuration files.";
     public static Object SENT = "You have sent a &f{name} &7artifact to &f{player}&7.";
-    public static Object REDEEM = "You have received &a${amount} &7from the artifact.";
-    public static Object ARTIFACT_NAME = "{color}&l{name} &7[Artifact]";
+    public static Object REDEEM = "You have received &a${price} &7from the artifact.";
+    public static Object ARTIFACT_NAME = "{color}&l{name} &7[{type}]";
     public static Object ARTIFACT_LORE = new String[] {
             "&7{description}",
             "&7Chance: &a{chance}%",

@@ -9,14 +9,15 @@ import java.util.List;
 
 public class Artifact {
 
-    private final String name, description;
+    private final String name, type, description;
     private final Material material;
     private List<String> commands;
     private final ChatColor color;
     private final double price, chance;
 
-    public Artifact(String name, String description, Material material, List<String> commands, ChatColor color, double price, double chance) {
+    public Artifact(String name, String type, String description, Material material, List<String> commands, ChatColor color, double price, double chance) {
         this.name = name;
+        this.type = type;
         this.description = description;
         this.material = material;
         this.commands = commands;
@@ -27,6 +28,10 @@ public class Artifact {
 
     public String getName() {
         return name;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getDescription() {
