@@ -2,26 +2,35 @@ package com.ihusker.archaeology.commands;
 
 import com.ihusker.archaeology.Archaeology;
 import com.ihusker.archaeology.data.Artifact;
+import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.utilities.command.AbstractCommand;
-import com.ihusker.archaeology.utilities.general.Message;
+import com.ihusker.archaeology.utilities.storage.data.Message;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class ArchaeologyCommand extends AbstractCommand {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class ArchaeologyCommand extends AbstractCommand implements TabCompleter {
 
     private final Archaeology archaeology;
+    private final ArtifactManager artifactManager;
 
     public ArchaeologyCommand(Archaeology archaeology) {
         super("archaeology");
         this.archaeology = archaeology;
+        this.artifactManager = archaeology.getArtifactManager();
     }
 
     @Override
@@ -35,42 +44,42 @@ public class ArchaeologyCommand extends AbstractCommand {
         }
 
         if(args[0].equalsIgnoreCase("reload")) {
+            artifactManager.deserialize();
             archaeology.reloadConfig();
-            archaeology.getArtifactManager().deserialize(archaeology);
             archaeology.getDataManager().deserialize(archaeology);
-            player.sendMessage(Message.PREFIX.toString() + "You have reloaded the configuration.");
+            player.sendMessage(Message.PREFIX.toString() + Message.RELOAD.toString());
             return;
         }
 
-        if(args[0].equalsIgnoreCase("redeem")) {
-            ItemStack itemStack = player.getInventory().getItemInMainHand();
-            if (itemStack.getType() == Material.AIR) return;
+        if(args[0].equalsIgnoreCase("give") && args.length == 3) {
+            Player target = archaeology.getServer().getPlayer(args[1]);
 
-            for (Artifact artifact : archaeology.getArtifactManager().getArtifacts()) {
-                if (artifact.getMaterial() == itemStack.getType()) {
-
-                    ItemMeta itemMeta = itemStack.getItemMeta();
-                    if (itemMeta != null) {
-                        NamespacedKey namespacedKey = new NamespacedKey(archaeology, "Artifact");
-                        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
-
-                        if (container.has(namespacedKey, PersistentDataType.DOUBLE)) {
-
-                            Double aDouble = container.get(namespacedKey, PersistentDataType.DOUBLE);
-
-                            if (aDouble != null) {
-                                EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, artifact.getPrice());
-                                if (economyResponse.transactionSuccess()) player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString().replace("{amount}", String.valueOf(aDouble)));
-                                ItemStack handItem = player.getInventory().getItemInMainHand();
-                                handItem.setAmount(handItem.getAmount() - 1);
-                                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-
+            if(target == null) {
+                player.sendMessage(Message.PREFIX.toString() + Message.OFFLINE.toString().replace("{player}", args[2]));
+                return;
             }
+
+            Artifact artifact = artifactManager.getArtifact(args[2]);
+            if (artifact == null) {
+                player.sendMessage(Message.PREFIX.toString() + Message.NON_EXISTENT.toString().replace("{name}", args[1]));
+                return;
+            }
+
+            target.getInventory().addItem(artifactManager.artifactItem(artifact));
+            target.sendMessage(Message.PREFIX.toString() + Message.RECEIVED.toString().replace("{name}", artifact.toString()));
+            player.sendMessage(Message.PREFIX.toString() + Message.SENT.toString()
+                    .replace("{name}", artifact.toString())
+                    .replace("{player}", target.getName())
+            );
         }
+
+        if(args[0].equalsIgnoreCase("redeem")) artifactManager.redeem(player);
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+        if(strings.length == 1) return Arrays.asList("reload", "redeem", "version", "give");
+        if(strings.length == 3) return artifactManager.getArtifacts().stream().map(Artifact::getName).collect(Collectors.toList());
+        return null;
     }
 }

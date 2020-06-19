@@ -20,23 +20,20 @@ public class Archaeology extends JavaPlugin {
     private Economy economy = null;
     private final NamespacedKey namespacedKey = new NamespacedKey(this, "Artifact");
 
-    private final ArtifactManager artifactManager = new ArtifactManager();
+    private final ArtifactManager artifactManager = new ArtifactManager(this);
     private final DataManager dataManager = new DataManager();
 
     @Override
     public void onEnable() {
-
         if(registerDependencies()) {
-            saveDefaultConfig();
-
-            artifactManager.deserialize(this);
+            artifactManager.deserialize();
             dataManager.deserialize(this);
 
             registerCommands(new ArchaeologyCommand(this));
 
             registerListener(
-                    new BlockBreakListener(this),
-                    new NPCListener(this)
+                    new BlockBreakListener(artifactManager),
+                    new NPCListener(artifactManager)
             );
         } else {
             getLogger().warning("You need to install both vault and citizens for plugin to work...");
@@ -46,7 +43,7 @@ public class Archaeology extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        artifactManager.serialize(this);
+        artifactManager.serialize();
     }
 
     private void registerCommands(Command... commands) {

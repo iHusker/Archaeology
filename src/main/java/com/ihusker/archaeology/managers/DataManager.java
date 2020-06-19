@@ -1,36 +1,20 @@
 package com.ihusker.archaeology.managers;
 
-import com.ihusker.archaeology.utilities.general.Message;
+import com.ihusker.archaeology.utilities.storage.data.Config;
+import com.ihusker.archaeology.utilities.storage.data.Message;
 import com.ihusker.archaeology.utilities.storage.YamlStorage;
 import org.bukkit.plugin.Plugin;
 
-import java.util.*;
-
 public class DataManager {
 
-    private List<String> worlds = new ArrayList<>();
-    private List<String> materials = new ArrayList<>();
-
-    private final YamlStorage yamlStorage = new YamlStorage("message.yml");
+    private final YamlStorage configStorage = new YamlStorage("config.yml");
+    private final YamlStorage messageStorage = new YamlStorage("message.yml");
 
     public void deserialize(Plugin plugin) {
-        materials = plugin.getConfig().getStringList("blocks");
-        worlds = plugin.getConfig().getStringList("worlds");
+        Config.Setup(configStorage.createNewFile(plugin));
+        Config.Deserialize(configStorage.getConfig());
 
-        Message.Setup(yamlStorage.createNewFile(plugin));
-        Message.Deserialize(yamlStorage.getConfig());
-    }
-
-
-    public List<String> getWorlds() {
-        return Collections.unmodifiableList(worlds);
-    }
-
-    public List<String> getMaterials() {
-        return Collections.unmodifiableList(materials);
-    }
-
-    public YamlStorage getYamlStorage() {
-        return yamlStorage;
+        Message.Setup(messageStorage.createNewFile(plugin));
+        Message.Deserialize(messageStorage.getConfig());
     }
 }

@@ -1,6 +1,6 @@
 package com.ihusker.archaeology.utilities.command;
 
-import com.ihusker.archaeology.utilities.general.Message;
+import com.ihusker.archaeology.utilities.storage.data.Message;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

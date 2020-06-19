@@ -1,21 +1,26 @@
 package com.ihusker.archaeology.data;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Artifact {
 
-    private final String name;
-    private final String description;
+    private final String name, description;
     private final Material material;
+    private List<String> commands;
     private final ChatColor color;
     private final double price;
     private final int chance;
 
-    public Artifact(String name, String description, Material material, ChatColor color, double price, int chance) {
+    public Artifact(String name, String description, Material material, List<String> commands, ChatColor color, double price, int chance) {
         this.name = name;
         this.description = description;
         this.material = material;
+        this.commands = commands;
         this.color = color;
         this.price = price;
         this.chance = chance;
@@ -33,6 +38,11 @@ public class Artifact {
         return material;
     }
 
+    public List<String> getCommands() {
+        if(commands == null) commands = new ArrayList<>();
+        return commands;
+    }
+
     public ChatColor getColor() {
         return color;
     }
@@ -43,6 +53,12 @@ public class Artifact {
 
     public int getChance() {
         return chance;
+    }
+
+
+    @Override
+    public String toString() {
+        return WordUtils.capitalize(name.toLowerCase().replace("_", " "));
     }
 }
 
