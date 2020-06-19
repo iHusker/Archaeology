@@ -13,10 +13,9 @@ public class Artifact {
     private final Material material;
     private List<String> commands;
     private final ChatColor color;
-    private final double price;
-    private final int chance;
+    private final double price, chance;
 
-    public Artifact(String name, String description, Material material, List<String> commands, ChatColor color, double price, int chance) {
+    public Artifact(String name, String description, Material material, List<String> commands, ChatColor color, double price, double chance) {
         this.name = name;
         this.description = description;
         this.material = material;
@@ -51,7 +50,7 @@ public class Artifact {
         return price;
     }
 
-    public int getChance() {
+    public double getChance() {
         return chance;
     }
 

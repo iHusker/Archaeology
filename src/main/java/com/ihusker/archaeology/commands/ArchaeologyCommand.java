@@ -4,11 +4,8 @@ import com.ihusker.archaeology.Archaeology;
 import com.ihusker.archaeology.data.Artifact;
 import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.utilities.command.AbstractCommand;
+import com.ihusker.archaeology.utilities.storage.data.Config;
 import com.ihusker.archaeology.utilities.storage.data.Message;
-import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -17,9 +14,9 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class ArchaeologyCommand extends AbstractCommand implements TabCompleter {
@@ -73,7 +70,13 @@ public class ArchaeologyCommand extends AbstractCommand implements TabCompleter 
             );
         }
 
-        if(args[0].equalsIgnoreCase("redeem")) artifactManager.redeem(player);
+        if(args[0].equalsIgnoreCase("redeem")) {
+            if (artifactManager.redeem(player)) {
+                String[] strings = (String[]) Config.MESSAGES;
+                if(strings.length <= 0) return;
+                player.sendMessage(Message.NPC_NAME.toString() + strings[new Random().nextInt(strings.length)]);
+            }
+        }
     }
 
     @Override

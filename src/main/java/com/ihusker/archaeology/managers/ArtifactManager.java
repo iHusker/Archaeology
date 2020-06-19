@@ -8,6 +8,7 @@ import com.ihusker.archaeology.utilities.storage.types.JsonStorage;
 import com.ihusker.archaeology.utilities.storage.data.Message;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -52,39 +53,31 @@ public class ArtifactManager {
         return (chance == 0) ? 1000 : chance;
     }
 
-    public void redeem(Player player) {
-        int amount = 0;
-        int totalPrice = 0;
+    public boolean redeem(Player player) {
+        ItemStack itemStack = player.getInventory().getItemInMainHand();
+        if (itemStack.getType() == Material.AIR) return true;
 
-        ItemStack[] contents = player.getInventory().getContents();
-        for (ItemStack itemStack : contents) {
-            if (itemStack != null) {
-                ItemMeta itemMeta = itemStack.getItemMeta();
-                if (itemMeta != null) {
-                    PersistentDataContainer container = itemStack.getItemMeta().getPersistentDataContainer();
-                    String string = container.get(archaeology.getKey(), PersistentDataType.STRING);
-                    if (string != null) {
-                        Artifact artifact = archaeology.getArtifactManager().getArtifact(string);
-                        if (artifact != null) {
-                            amount += 1;
-                            totalPrice += artifact.getPrice();
-                            artifact.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command
-                                    .replace("{player}", player.getName()))
-                            );
-                            itemStack.setAmount(itemStack.getAmount() - 1);
-                        }
-                    }
-                }
-            }
-        }
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null) return true;
 
-        EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, totalPrice);
-        if (economyResponse.transactionSuccess()) {
-            player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString()
-                    .replace("{price}", String.valueOf(totalPrice))
-                    .replace("{amount}", String.valueOf(amount))
-            );
-        }
+        PersistentDataContainer container = itemStack.getItemMeta().getPersistentDataContainer();
+        String string = container.get(archaeology.getKey(), PersistentDataType.STRING);
+        if (string == null) return true;
+
+        Artifact artifact = archaeology.getArtifactManager().getArtifact(string);
+        if (artifact == null) return true;
+
+        artifact.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command
+                .replace("{player}", player.getName()))
+        );
+        player.getInventory().getItemInMainHand().setAmount(itemStack.getAmount() -1);
+
+        EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, artifact.getPrice());
+        if (economyResponse.transactionSuccess()) player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString()
+                .replace("{price}", String.valueOf(artifact.getPrice()))
+        );
+
+        return false;
     }
 
     public ItemStack artifactItem(Artifact artifact) {

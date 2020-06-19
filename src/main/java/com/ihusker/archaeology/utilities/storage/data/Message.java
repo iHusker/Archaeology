@@ -4,6 +4,7 @@ public class Message {
 
     public static Object PERMISSIONS = "&7You do not seem to have permissions for that command.";
     public static Object PREFIX = "&e&lArchaeology: &7";
+    public static Object NPC_NAME = "&e&lArchaeologist: &7";
     public static Object NON_EXISTENT = "The &f{name} &7artifact does not seem to exist.";
     public static Object FOUND = "You have found a &f{name} &7artifact.";
     public static Object RECEIVED = "You have received a &f{name} &7artifact.";
