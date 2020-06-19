@@ -1,4 +1,4 @@
-package com.ihusker.archaeology.utilities.storage;
+package com.ihusker.archaeology.utilities.storage.types;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;

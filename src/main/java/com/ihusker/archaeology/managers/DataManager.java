@@ -1,8 +1,9 @@
 package com.ihusker.archaeology.managers;
 
+import com.ihusker.archaeology.utilities.storage.DataHandler;
 import com.ihusker.archaeology.utilities.storage.data.Config;
 import com.ihusker.archaeology.utilities.storage.data.Message;
-import com.ihusker.archaeology.utilities.storage.YamlStorage;
+import com.ihusker.archaeology.utilities.storage.types.YamlStorage;
 import org.bukkit.plugin.Plugin;
 
 public class DataManager {
@@ -11,10 +12,10 @@ public class DataManager {
     private final YamlStorage messageStorage = new YamlStorage("message.yml");
 
     public void deserialize(Plugin plugin) {
-        Config.Setup(configStorage.createNewFile(plugin));
-        Config.Deserialize(configStorage.getConfig());
+        DataHandler.Setup(configStorage.createNewFile(plugin), Config.class);
+        DataHandler.Deserialize(configStorage.getConfig(), Config.class);
 
-        Message.Setup(messageStorage.createNewFile(plugin));
-        Message.Deserialize(messageStorage.getConfig());
+        DataHandler.Setup(messageStorage.createNewFile(plugin), Message.class);
+        DataHandler.Deserialize(messageStorage.getConfig(), Message.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.ihusker.archaeology.utilities.storage;
+package com.ihusker.archaeology.utilities.storage.types;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
