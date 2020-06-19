@@ -1,7 +1,9 @@
 package com.ihusker.archaeology.listeners;
 
+import com.ihusker.archaeology.Archaeology;
 import com.ihusker.archaeology.data.Artifact;
 import com.ihusker.archaeology.managers.ArtifactManager;
+import com.ihusker.archaeology.managers.PlayerManager;
 import com.ihusker.archaeology.utilities.storage.data.Config;
 import com.ihusker.archaeology.utilities.storage.data.Message;
 import org.apache.commons.lang.WordUtils;
@@ -16,39 +18,45 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 
 public class BlockBreakListener implements Listener {
 
     private final ArtifactManager artifactManager;
+    private final PlayerManager playerManager;
+    private final Set<Material> blocks = new HashSet<>();
 
-    public BlockBreakListener(ArtifactManager artifactManager) {
-        this.artifactManager = artifactManager;
+    public BlockBreakListener(Archaeology archaeology) {
+        this.artifactManager = archaeology.getArtifactManager();
+        this.playerManager = archaeology.getPlayerManager();
+
+        Arrays.asList((String[]) Config.BLOCKS).forEach(s -> {
+            Material material = Material.matchMaterial(s);
+            if(material != null) blocks.add(material);
+        });
     }
 
     @EventHandler
     public void onEvent(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        Block block = event.getBlock();
-
-        if(player.getGameMode() != GameMode.SURVIVAL) return;
-
-        if(!Arrays.asList((String[]) Config.BLOCKS).contains(block.getType().name())) return;
-        if(!Arrays.asList((String[]) Config.WORLDS).contains(player.getWorld().getName())) return;
-
-        ItemStack handItem = event.getPlayer().getInventory().getItemInMainHand();
-        ItemMeta itemMeta = handItem.getItemMeta();
+        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+        if (!Arrays.asList((String[]) Config.WORLDS).contains(event.getPlayer().getWorld().getName())) return;
+        if (!blocks.contains(event.getBlock().getType())) return;
 
         boolean silkTouch = false;
-        if(Config.SILK_TOUCH) {
+        if (Config.SILK_TOUCH) {
+            ItemStack handItem = event.getPlayer().getInventory().getItemInMainHand();
+            ItemMeta itemMeta = handItem.getItemMeta();
             if (itemMeta != null) {
                 if (itemMeta.getEnchants().containsKey(Enchantment.SILK_TOUCH)) silkTouch = true;
             }
         }
 
+        Player player = event.getPlayer();
 
-        if (new Random().nextInt(artifactManager.getChance(player) / ((silkTouch) ? 2 : 1)) == 0) {
+        int divide = (silkTouch) ? 2 : 1;
+        double chance = new Random().nextInt((int) playerManager.getChance(player.getUniqueId()));
+
+        if (chance / divide == 0) {
             Artifact artifact = artifactManager.getWeightedArtifact();
 
             if (artifact != null) {

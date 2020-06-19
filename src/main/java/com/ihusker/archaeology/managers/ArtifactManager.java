@@ -18,7 +18,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ArtifactManager {
@@ -40,19 +39,6 @@ public class ArtifactManager {
     public void serialize() {
         JsonStorage.write(archaeology,"artifacts.json", artifacts);
         archaeology.getLogger().info("Saved " + artifacts.size() + " Artifacts.");
-    }
-
-    public int getChance(Player player)  {
-        int chance = Integer.MAX_VALUE;
-        for(PermissionAttachmentInfo permissionAttachmentInfo : player.getEffectivePermissions()) {
-            String permission = permissionAttachmentInfo.getPermission();
-            if(permission.startsWith("archaeology.chance.")) {
-                String[] split = permission.split("\\.");
-                int newChance = Integer.parseInt(split[2]);
-                if(newChance < chance) chance = newChance;
-            }
-        }
-        return (chance == 0) ? 1000 : chance;
     }
 
     public boolean redeem(Player player) {

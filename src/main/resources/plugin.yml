@@ -1,6 +1,6 @@
 name: Archaeology
 main: com.ihusker.archaeology.Archaeology
-version: ALPHA-4.0
+version: ALPHA-5.0
 api-version: "1.15"
 author: iHusker
 softdepend: [Vault, Citizens]

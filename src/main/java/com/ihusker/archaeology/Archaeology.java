@@ -6,10 +6,13 @@ import com.ihusker.archaeology.listeners.NPCListener;
 import com.ihusker.archaeology.listeners.PlayerListener;
 import com.ihusker.archaeology.managers.ArtifactManager;
 import com.ihusker.archaeology.managers.DataManager;
+import com.ihusker.archaeology.managers.PlayerManager;
 import com.ihusker.archaeology.utilities.command.Command;
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +26,7 @@ public class Archaeology extends JavaPlugin {
 
     private final ArtifactManager artifactManager = new ArtifactManager(this);
     private final DataManager dataManager = new DataManager();
+    private final PlayerManager playerManager = new PlayerManager();
 
     @Override
     public void onEnable() {
@@ -33,10 +37,14 @@ public class Archaeology extends JavaPlugin {
             registerCommands(new ArchaeologyCommand(this));
 
             registerListener(
-                    new BlockBreakListener(artifactManager),
+                    new BlockBreakListener(this),
                     new NPCListener(artifactManager),
                     new PlayerListener(this)
             );
+
+            for(Player player : getServer().getOnlinePlayers()) {
+                playerManager.deserialize(player.getUniqueId());
+            }
         } else {
             getLogger().warning("You need to install both vault and citizens for plugin to work...");
             getServer().getPluginManager().disablePlugin(this);
@@ -80,6 +88,10 @@ public class Archaeology extends JavaPlugin {
 
     public DataManager getDataManager() {
         return dataManager;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
     public Economy getEconomy() {
