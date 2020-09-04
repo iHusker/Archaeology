@@ -13,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import java.lang.reflect.Type;
@@ -42,30 +41,35 @@ public class ArtifactManager {
     }
 
     public boolean redeem(Player player) {
-        ItemStack itemStack = player.getInventory().getItemInMainHand();
-        if (itemStack.getType() == Material.AIR) return true;
+        ItemStack[] itemStacks = player.getInventory().getContents();
+        double price = 0.0D;
+        boolean selling = false;
+        for(ItemStack itemStack : itemStacks) {
+            if(itemStack != null) {
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                if (itemMeta != null) {
+                    PersistentDataContainer container = itemStack.getItemMeta().getPersistentDataContainer();
+                    String string = container.get(archaeology.getKey(), PersistentDataType.STRING);
+                    if (string != null) {
+                        Artifact artifact = archaeology.getArtifactManager().getArtifact(string);
+                        if (artifact != null) {
+                            artifact.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command
+                                    .replace("{player}", player.getName()))
+                            );
+                            player.getInventory().getItemInMainHand().setAmount(itemStack.getAmount() -1);
+                            price += artifact.getPrice();
+                            selling = true;
+                        }
+                    }
+                }
+            }
+        }
 
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        if (itemMeta == null) return true;
-
-        PersistentDataContainer container = itemStack.getItemMeta().getPersistentDataContainer();
-        String string = container.get(archaeology.getKey(), PersistentDataType.STRING);
-        if (string == null) return true;
-
-        Artifact artifact = archaeology.getArtifactManager().getArtifact(string);
-        if (artifact == null) return true;
-
-        artifact.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command
-                .replace("{player}", player.getName()))
-        );
-        player.getInventory().getItemInMainHand().setAmount(itemStack.getAmount() -1);
-
-        EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, artifact.getPrice());
+        EconomyResponse economyResponse = archaeology.getEconomy().depositPlayer(player, price);
         if (economyResponse.transactionSuccess()) player.sendMessage(Message.PREFIX.toString() + Message.REDEEM.toString()
-                .replace("{price}", String.valueOf(artifact.getPrice()))
+                .replace("{price}", String.valueOf(price))
         );
-
-        return false;
+        return selling;
     }
 
     public ItemStack artifactItem(Artifact artifact) {
@@ -98,9 +102,9 @@ public class ArtifactManager {
         return itemStack;
     }
 
-    public Artifact getWeightedArtifact() {
+    public Artifact getWeightedArtifact(int y) {
         Map<Integer, Double> weights = new HashMap<>();
-        List<Artifact> artifacts = new ArrayList<>(this.artifacts);
+        List<Artifact> artifacts = new ArrayList<>(getArtifactsBasedOnDepth(y));
 
         for(int i = 0; i < artifacts.size(); i++) weights.put(i, artifacts.get(i).getChance());
 
@@ -110,6 +114,10 @@ public class ArtifactManager {
                 .filter(entry-> needle.addAndGet(entry.getValue()) >= chance)
                 .findFirst().map(Map.Entry::getKey).map(artifacts::get)
                 .orElse(null);
+    }
+
+    public List<Artifact> getArtifactsBasedOnDepth(int y) {
+        return artifacts.stream().filter(artifact -> artifact.getDepth() <= y).collect(Collectors.toList());
     }
 
     public Artifact getArtifact(String name) {

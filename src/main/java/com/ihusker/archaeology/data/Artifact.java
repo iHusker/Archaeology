@@ -13,15 +13,16 @@ public class Artifact {
     private final Material material;
     private List<String> commands;
     private final ChatColor color;
+    private int depth;
     private final double price, chance;
 
-    public Artifact(String name, String type, String description, Material material, List<String> commands, ChatColor color, double price, double chance) {
+    public Artifact(String name, String type, String description, Material material, ChatColor color, int depth, double price, double chance) {
         this.name = name;
         this.type = type;
         this.description = description;
         this.material = material;
-        this.commands = commands;
         this.color = color;
+        this.depth = depth;
         this.price = price;
         this.chance = chance;
     }
@@ -49,6 +50,11 @@ public class Artifact {
 
     public ChatColor getColor() {
         return color;
+    }
+
+    public int getDepth() {
+        if(depth == 0) depth = 64;
+        return depth;
     }
 
     public double getPrice() {

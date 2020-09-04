@@ -32,6 +32,14 @@ public class ArchaeologyCommand extends AbstractCommand implements TabCompleter 
 
     @Override
     public void execute(Player player, String[] args) {
+        if(args.length < 1) {
+            PluginDescriptionFile descriptionFile = archaeology.getDescription();
+            player.sendMessage(Message.PREFIX.toString());
+            player.sendMessage("Author(s): " + descriptionFile.getAuthors());
+            player.sendMessage("Version: " + descriptionFile.getVersion());
+            return;
+        }
+
         if(args[0].equalsIgnoreCase("version")) {
             PluginDescriptionFile descriptionFile = archaeology.getDescription();
             player.sendMessage(Message.PREFIX.toString());

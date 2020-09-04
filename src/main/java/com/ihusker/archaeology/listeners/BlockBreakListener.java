@@ -57,7 +57,7 @@ public class BlockBreakListener implements Listener {
         double chance = new Random().nextInt((int) playerManager.getChance(player.getUniqueId()));
 
         if (chance / divide == 0) {
-            Artifact artifact = artifactManager.getWeightedArtifact();
+            Artifact artifact = artifactManager.getWeightedArtifact(event.getBlock().getY());
 
             if (artifact != null) {
                 ItemStack itemStack = artifactManager.artifactItem(artifact);

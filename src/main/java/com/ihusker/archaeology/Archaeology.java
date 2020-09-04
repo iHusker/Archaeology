@@ -9,7 +9,6 @@ import com.ihusker.archaeology.managers.DataManager;
 import com.ihusker.archaeology.managers.PlayerManager;
 import com.ihusker.archaeology.utilities.command.Command;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -42,9 +41,8 @@ public class Archaeology extends JavaPlugin {
                     new PlayerListener(this)
             );
 
-            for(Player player : getServer().getOnlinePlayers()) {
-                playerManager.deserialize(player.getUniqueId());
-            }
+            for(Player player : getServer().getOnlinePlayers()) playerManager.deserialize(player.getUniqueId());
+
         } else {
             getLogger().warning("You need to install both vault and citizens for plugin to work...");
             getServer().getPluginManager().disablePlugin(this);
@@ -54,6 +52,8 @@ public class Archaeology extends JavaPlugin {
     @Override
     public void onDisable() {
         artifactManager.serialize();
+
+        for(Player player : getServer().getOnlinePlayers()) playerManager.serialize(player.getUniqueId());
     }
 
     private void registerCommands(Command... commands) {
